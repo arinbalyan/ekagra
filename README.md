@@ -104,5 +104,12 @@ ekagra/
 
 ---
 
+### furture work
+- complete the user authentication 
+- complete the spotify integration
+- complete the settings for the app
+- improve the ui ux
+- add more features
+
 ## Credits
 - Inspired by productivity techniques and modern web best practices.
