@@ -1,4 +1,5 @@
-# Ekagra Productivity App
+# Ekagra
+## Utility app
 
 Ekagra is a full-stack productivity utility app designed to help you focus, manage tasks, and boost your efficiency. It combines a Pomodoro timer, task management, analytics, and Spotify music integration in a beautiful, responsive, and PWA-ready interface.
 
@@ -101,10 +102,7 @@ ekagra/
 
 ## License
 
-MIT
-
 ---
 
 ## Credits
 - Inspired by productivity techniques and modern web best practices.
-- Built with ❤️ by the Ekagra team. 
