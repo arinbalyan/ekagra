@@ -101,7 +101,7 @@ ekagra/
 ---
 
 ## License
-
+MIT
 ---
 
 ### furture work
