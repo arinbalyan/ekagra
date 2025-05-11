@@ -48,6 +48,7 @@ export default function Timer() {
 
   // Play timer-over sound for pause/stop in pomodoro
   const handlePause = () => {
+    stopAllSounds();
     if (currentTimer?.type === 'pomodoro' && timerOverAudioRef.current && !timerOverPlayedRef.current) {
       timerOverAudioRef.current.currentTime = 0;
       timerOverAudioRef.current.play();
@@ -56,6 +57,7 @@ export default function Timer() {
     pauseTimer();
   };
   const handleEnd = () => {
+    stopAllSounds();
     if (currentTimer?.type === 'pomodoro' && timerOverAudioRef.current && !timerOverPlayedRef.current) {
       timerOverAudioRef.current.currentTime = 0;
       timerOverAudioRef.current.play();
@@ -63,11 +65,33 @@ export default function Timer() {
     }
     endTimer();
   };
+  const handleSkip = () => {
+    stopAllSounds();
+    if (currentTimer?.type === 'pomodoro' && timerOverAudioRef.current && !timerOverPlayedRef.current) {
+      timerOverAudioRef.current.currentTime = 0;
+      timerOverAudioRef.current.play();
+      timerOverPlayedRef.current = true;
+    }
+    skipTimer();
+  };
+
+  // Utility to stop all sounds before playing a new one
+  const stopAllSounds = () => {
+    if (tickAudioRef.current) {
+      tickAudioRef.current.pause();
+      tickAudioRef.current.currentTime = 0;
+    }
+    if (timerOverAudioRef.current) {
+      timerOverAudioRef.current.pause();
+      timerOverAudioRef.current.currentTime = 0;
+    }
+  };
 
   useEffect(() => {
     if (!isClient) return;
     // Play tick sound once when timer starts
     if (isRunning && timeLeft > 0 && prevTimeLeftRef.current === null) {
+      stopAllSounds();
       if (tickAudioRef.current) {
         tickAudioRef.current.currentTime = 0;
         tickAudioRef.current.play();
@@ -76,6 +100,7 @@ export default function Timer() {
     prevTimeLeftRef.current = prevTimeLeftRef.current === null && isRunning && timeLeft > 0 ? timeLeft : prevTimeLeftRef.current;
     // Play timer over sound only once when timer completes
     if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current > 0) {
+      stopAllSounds();
       if (timerOverAudioRef.current) {
         timerOverAudioRef.current.currentTime = 0;
         timerOverAudioRef.current.play();
@@ -156,7 +181,7 @@ export default function Timer() {
                 <StopIcon className="h-6 w-6" />
               </button>
               <button
-                onClick={skipTimer}
+                onClick={handleSkip}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               >
                 Skip
