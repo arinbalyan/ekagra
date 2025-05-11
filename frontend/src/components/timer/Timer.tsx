@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTimer } from '@/contexts/TimerContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { PlayIcon, PauseIcon, StopIcon } from '@heroicons/react/24/outline';
@@ -15,6 +15,11 @@ export default function Timer() {
     skipTimer
   } = useTimer();
   const { user } = useAuth();
+
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -36,8 +41,41 @@ export default function Timer() {
     startTimer('longBreak', user?.preferences.longBreakDuration || 15);
   };
 
+  const tickAudioRef = useRef<HTMLAudioElement | null>(null);
+  const timerOverAudioRef = useRef<HTMLAudioElement | null>(null);
+  const prevTimeLeftRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isClient) return;
+    // Play tick sound once when timer starts
+    if (isRunning && timeLeft > 0 && prevTimeLeftRef.current === null) {
+      if (tickAudioRef.current) {
+        tickAudioRef.current.currentTime = 0;
+        tickAudioRef.current.play();
+      }
+    }
+    prevTimeLeftRef.current = prevTimeLeftRef.current === null && isRunning && timeLeft > 0 ? timeLeft : prevTimeLeftRef.current;
+    // Play timer over sound when timer completes
+    if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current !== 0) {
+      if (timerOverAudioRef.current) {
+        timerOverAudioRef.current.currentTime = 0;
+        timerOverAudioRef.current.play();
+      }
+      prevTimeLeftRef.current = 0;
+    }
+    if (!isRunning) {
+      prevTimeLeftRef.current = null;
+    }
+  }, [isRunning, timeLeft, currentTimer, isClient]);
   return (
     <div className="gradient-card shadow rounded-lg p-6">
+      {/* Audio elements for tick and timer-over sounds */}
+      {isClient && (
+        <>
+          <audio ref={tickAudioRef} src="/sounds/tick.mp3" preload="auto" />
+          <audio ref={timerOverAudioRef} src="/sounds/timer-over.mp3" preload="auto" />
+        </>
+      )}
       <div className="text-center">
         <h2 className="text-2xl font-bold gradient-primary mb-4">
           {currentTimer ? (
