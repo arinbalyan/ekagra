@@ -99,7 +99,7 @@ export default function Timer() {
     }
     prevTimeLeftRef.current = prevTimeLeftRef.current === null && isRunning && timeLeft > 0 ? timeLeft : prevTimeLeftRef.current;
     // Play timer over sound only once when timer completes
-    if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current > 0) {
+    if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current !== null && prevTimeLeftRef.current > 0) {
       stopAllSounds();
       if (timerOverAudioRef.current) {
         timerOverAudioRef.current.currentTime = 0;
