@@ -44,6 +44,25 @@ export default function Timer() {
   const tickAudioRef = useRef<HTMLAudioElement | null>(null);
   const timerOverAudioRef = useRef<HTMLAudioElement | null>(null);
   const prevTimeLeftRef = useRef<number | null>(null);
+  const timerOverPlayedRef = useRef<boolean>(false);
+
+  // Play timer-over sound for pause/stop in pomodoro
+  const handlePause = () => {
+    if (currentTimer?.type === 'pomodoro' && timerOverAudioRef.current && !timerOverPlayedRef.current) {
+      timerOverAudioRef.current.currentTime = 0;
+      timerOverAudioRef.current.play();
+      timerOverPlayedRef.current = true;
+    }
+    pauseTimer();
+  };
+  const handleEnd = () => {
+    if (currentTimer?.type === 'pomodoro' && timerOverAudioRef.current && !timerOverPlayedRef.current) {
+      timerOverAudioRef.current.currentTime = 0;
+      timerOverAudioRef.current.play();
+      timerOverPlayedRef.current = true;
+    }
+    endTimer();
+  };
 
   useEffect(() => {
     if (!isClient) return;
@@ -55,16 +74,18 @@ export default function Timer() {
       }
     }
     prevTimeLeftRef.current = prevTimeLeftRef.current === null && isRunning && timeLeft > 0 ? timeLeft : prevTimeLeftRef.current;
-    // Play timer over sound when timer completes
-    if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current !== 0) {
+    // Play timer over sound only once when timer completes
+    if (currentTimer && timeLeft === 0 && prevTimeLeftRef.current > 0) {
       if (timerOverAudioRef.current) {
         timerOverAudioRef.current.currentTime = 0;
         timerOverAudioRef.current.play();
       }
       prevTimeLeftRef.current = 0;
+      timerOverPlayedRef.current = true;
     }
     if (!isRunning) {
       prevTimeLeftRef.current = null;
+      timerOverPlayedRef.current = false;
     }
   }, [isRunning, timeLeft, currentTimer, isClient]);
   return (
@@ -115,7 +136,7 @@ export default function Timer() {
             <>
               {isRunning ? (
                 <button
-                  onClick={pauseTimer}
+                  onClick={handlePause}
                   className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
                 >
                   <PauseIcon className="h-6 w-6" />
@@ -129,7 +150,7 @@ export default function Timer() {
                 </button>
               )}
               <button
-                onClick={endTimer}
+                onClick={handleEnd}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 <StopIcon className="h-6 w-6" />
